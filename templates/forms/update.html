@@ -1,0 +1,46 @@
+{% extends 'layouts/form.html' %}
+
+{% block title %}
+Update
+{% endblock %}
+{% block content %}
+{% block custom_style %}
+    <style type="text/css">
+      .center {
+    margin: auto;
+    margin-top: 100px;
+    width: 60%;
+    height: 60%;
+    border: 1px solid #73AD21;
+    padding: 10px;
+}
+</style>
+  <form method="post" class="form">
+
+    <h3 class="form-heading">Update <a href="{{ url_for('users') }}" title="Back to Users">
+    <i class="fa fa-home pull-right"></i></a></h3>
+</br>
+    Update profile for User : <b>{{ userid }}</b>
+    <div class="center">
+    <input name = userid type="hidden" value="{{ userid }}">
+    <b>{% for info in get_info %}
+{% if (session['role'] == 'admin') or (session['role'] == 'manager') %}
+Role: {{ info[3] }}
+    {{ form.role(class_ = 'form-control first-input', placeholder = form.role.label.text, required = false, autofocus = False) }}
+{% endif %}
+Full Name: {{ info[1] }}
+    {{ form.name(class_ = 'form-control first-input', placeholder = form.name.label.text, autofocus = true) }}
+Email: {{ info[2] }}
+    {{ form.email(class_ = 'form-control', placeholder = form.email.label.text) }}
+password:
+    {{ form.password(class_ = 'form-control', placeholder = form.password.label.text) }}
+
+    {% endfor %}
+
+    <p class="pull-left"><a href="{{ url_for('users') }}">Users</a></p>
+</b>
+    <input type="submit" value="Update Profile" class="btn btn-primary btn-lg btn-block"  >
+</div>
+  </form>
+{% endblock custom_style %}
+{% endblock %}

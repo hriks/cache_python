@@ -1,0 +1,29 @@
+{% extends 'layouts/main.html' %}
+{% block title %}About{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>About Role/User management System</h1>
+</div>
+
+<h2 class="lead page-header"> User Management System </h2>
+<h4 class="lead page-header">Following actions can be performed under this user management system</h4>
+<p>
+a. Create a new user [Admin]</br>
+b. Update His own profile information [User]</br>
+c. Update any user’s profile information [Admin, Manager]</br>
+d. Post a message [User]</br>
+e. Delete Any message [Admin]</br>
+f. Delete Own message [Admin]</br>
+g. Block User [Manager, Admin]</br>
+h. View All users [User, Manager, Admin]</p></br>
+
+{% if session['role'] == 'admin' %}
+<p class="lead">
+	<a href="{{ url_for('register') }}">
+		Create a new user
+	</a>
+</p>
+{% endif %}
+
+{% endblock %}
