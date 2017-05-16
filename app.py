@@ -2,11 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for,\
     session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 from logging import Formatter, FileHandler
-import models
 from functools import wraps
-import flask_login_auth
 from forms import *
 import logging
+import sys
+import csv
 
 
 app = Flask(__name__)
@@ -16,30 +16,8 @@ db = SQLAlchemy(app)
 
 
 # Decorator's
-def login_requied(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'name' in session:
-            return f(*args, **kwargs)
-        else:
-            flash(' Sorry! You Need to Login to view this page')
-            return redirect(url_for('login'))
-    return wrap
 
-
-def logout_requied(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'name' in session:
-            flash(
-                ' Sorry! You are logged in Already. Logout to Do your Action')
-            return redirect(url_for('home'))
-        else:
-            return f(*args, **kwargs)
-    return wrap
-
-
-def auth_requied(f):
+def id_requied(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         if session['role'] == 'admin':
@@ -54,8 +32,6 @@ def auth_requied(f):
 
 
 @app.route('/register', methods=['GET', 'POST'])
-@login_requied
-@auth_requied
 def register():
     form = RegisterForm(request.form)
     if request.method == 'POST':
@@ -76,68 +52,14 @@ def register():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    messages = models.message_show()
-    return render_template('pages/placeholder.home.html', messages=messages, session=session) # noqa
-
-
-@app.route('/about')
-def about():
-    return render_template('pages/placeholder.about.html')
-
-
-@app.route('/users')
-@login_requied
-def users():
-    users = models.users()
-    return render_template('pages/placeholder.users.html', users=users)
-
-
-@app.route('/logout')
-@login_requied
-def logout():
-    session.clear()
-    return redirect(url_for('home'))
-
-
-@app.route('/login', methods=['GET', 'POST'])
-@logout_requied
-def login():
-    error = None
-    session.clear()
-    form = LoginForm(request.form)
-    if request.method == 'POST':
-        username = form.name.data
-        password = form.password.data
-        value = flask_login_auth.authenticate(username, password)
-        if (value == 1):
-            role = flask_login_auth.role_authenticate(username, password)
-            blocked = flask_login_auth.blocked(username, password)
-            if not blocked:
-                session['name'] = username
-                session['role'] = role
-                session['editid'] = None
-                count = models.count_show(username)
-                messages = models.message_show()
-                if count[0][0]:
-                    session['count'] = count[0][0] + 1
-                    new_count = session['count']
-                new_count = models.count_add(username, new_count)
-                models.count_show(username)
-                return render_template('pages/placeholder.home.html', session=session, messages=messages) # noqa
-            else:
-                error = 'Your Account is blocked !\
-                Please contact Admin'
-                return render_template(
-                    'forms/login.html', form=form, error=error)
-        else:
-            error = 'Invalid username or password \
-            Please try again!'
-            return render_template('forms/login.html', form=form, error=error)
-    return render_template('forms/login.html', form=form)
+    input_file = csv.DictReader(open(sys.argv[1]))
+    for i in input_file:
+        print i
+    return render_template('pages/placeholder.home.html') # noqa
 
 
 @app.route('/search', methods=['GET', 'POST'])
-@login_requied
+@id_requied
 def search():
     search = request.form['search']
     match = flask_login_auth.searchbox(search)
@@ -146,16 +68,7 @@ def search():
                            match=match)
 
 
-@app.route('/index')
-@login_requied
-def index():
-    project = flask_login_auth.show_project(session['usersid'])
-    session['project'] = project
-    return render_template('pages/placeholder.home.html', session=session)
-
-
 @app.route('/message', methods=['GET', 'POST'])
-@login_requied
 def message():
     if request.method == 'POST':
         models.post_messages(
@@ -164,7 +77,7 @@ def message():
 
 
 @app.route('/delete', methods=['GET', 'POST'])
-@login_requied
+@id_requied
 def delete():
     if request.method == 'POST':
         models.message_delete(
@@ -172,17 +85,8 @@ def delete():
         return redirect(url_for('home'))
 
 
-@app.route('/block', methods=['GET', 'POST'])
-@login_requied
-def block():
-    if request.method == 'POST':
-        models.block(
-            request.form['submit'], request.form['userid'])
-        return redirect(url_for('users'))
-
-
 @app.route('/edit', methods=['GET', 'POST'])
-@login_requied
+@id_requied
 def edit():
     if request.method == 'POST':
         session['editid'] = request.form['submit']
@@ -190,7 +94,7 @@ def edit():
 
 
 @app.route('/update', methods=['GET', 'POST'])
-@login_requied
+@id_requied
 def update():
     if session['editid']:
         userid = session['editid']
