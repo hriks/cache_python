@@ -4,10 +4,6 @@ from wtforms.validators import DataRequired, Length
 
 
 class add_student(Form):
-    ids = IntegerField(
-        'ID', validators=[DataRequired(), Length(min=2, max=25)]
-    )
-
     student_name = TextField(
         'Student Name', validators=[DataRequired(), Length(min=6, max=25)]
     )
