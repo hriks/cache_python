@@ -33,21 +33,34 @@ def id_requied(f):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    return render_template('pages/placeholder.home.html', data=data)
+
+
+def read():
     input_file = csv.DictReader(open(sys.argv[1]))
-    print input_file
     data = []
     for i in input_file:
         data.append(i)
-    print data
-    return render_template('pages/placeholder.home.html')
+    return data
+
+
+def write_cache(student_name, academics, sports, social):
+    data = read()
+    new_dict = {}
+    new_dict['ids'] = len(data) + 1
+    new_dict['student_name'] = student_name
+    new_dict['academics'] = academics
+    new_dict['sports'] = sports
+    new_dict['social'] = social
+    data.append(new_dict)
+    return data
 
 
 @app.route('/addinfo', methods=['GET', 'POST'])
 def addinfo():
     form = add_student(request.form)
+    ids = len(read()) + 1
     if request.method == 'POST':
-        ids = form.ids.data
-        print ids
         student_name = form.student_name.data
         print student_name
         academics = form.academics.data
@@ -56,15 +69,17 @@ def addinfo():
         print sports
         social = form.social.data
         print social
-        if ids is None or student_name is not str or academics is None or sports is None or social is None: # noqa
+        if academics is None or sports is None or social is None: # noqa
             flash(
                 'ERROR! Please enter interger value on Score and text on Name or\
                  check id already exists.'
             )
             return redirect(url_for('addinfo'))
         else:
+            write_cache(student_name, academics, sports, social)
+            flash('Successfully Added new Records with ID %s for %s' )
             return redirect(url_for('home'))
-    return render_template('forms/register.html', form=form)
+    return render_template('forms/register.html', form=form, ids=ids)
 
 
 @app.route('/search', methods=['GET', 'POST'])
