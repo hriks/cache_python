@@ -1,4 +1,4 @@
-id,name,age,height,weight
-1,Amit kumar Gupta,25,25,52
-2,Atul kumar Gupta,25,25,52
-3,Deepak kumar Gupta,25,25,52
+ids,student_name,academics,sports,social
+1,Amit kumar Gupta,59,99,75
+2,Atul kumar Gupta,95,25,77
+3,Deepak kumar Gupta,77,25,52

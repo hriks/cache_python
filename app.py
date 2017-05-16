@@ -34,8 +34,11 @@ def id_requied(f):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     input_file = csv.DictReader(open(sys.argv[1]))
+    print input_file
+    data = []
     for i in input_file:
-        print i
+        data.append(i)
+    print data
     return render_template('pages/placeholder.home.html')
 
 
@@ -53,14 +56,14 @@ def addinfo():
         print sports
         social = form.social.data
         print social
-#        if user == 1:
-#            flash(
-#                'ERROR! Please enter something or check yours\
-#                username or user already exists'
-#            )
-#            return redirect(url_for('addinfo'))
-#        else:
-        return redirect(url_for('home'))
+        if ids is None or student_name is not str or academics is None or sports is None or social is None: # noqa
+            flash(
+                'ERROR! Please enter interger value on Score and text on Name or\
+                 check id already exists.'
+            )
+            return redirect(url_for('addinfo'))
+        else:
+            return redirect(url_for('home'))
     return render_template('forms/register.html', form=form)
 
 
