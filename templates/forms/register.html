@@ -19,18 +19,19 @@ Add User
     <h3 class="form-heading">Add User <a href="{{ url_for('home') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
 
     <div class="center">
-<b>Role:
-    {{ form.role(class_ = 'form-control first-input', placeholder = form.role.label.text, required = true, autofocus = False) }}
-User id:
-    {{ form.userid(class_ = 'form-control first-input', placeholder = form.userid.label.text, required = true, autofocus = true) }}
-Full Name:
-    {{ form.name(class_ = 'form-control first-input', placeholder = form.name.label.text, required = true, autofocus = true) }}
-Email:
-    {{ form.email(class_ = 'form-control', placeholder = form.email.label.text, required = true) }}
-Password:
-    {{ form.password(class_ = 'form-control', placeholder = form.password.label.text, required = true) }}
+<b>
+Student ID:
+    {{ form.ids(class_ = 'form-control first-input', placeholder = form.ids.label.text, required = true, autofocus = False) }}
+Student Name:
+    {{ form.student_name(class_ = 'form-control first-input', placeholder = form.student_name.label.text, required = true, autofocus = true) }}
+Academics:
+    {{ form.academics(class_ = 'form-control first-input', placeholder = form.academics.label.text, required = true, autofocus = true) }}
+Sports:
+    {{ form.sports(class_ = 'form-control', placeholder = form.sports.label.text, required = true) }}
+Social:
+    {{ form.social(class_ = 'form-control', placeholder = form.social.label.text, required = true) }}
 </b>
-    <input type="submit" value="Register" class="btn btn-primary btn-lg btn-block"  >
+    <input type="submit" value="Add Record" class="btn btn-primary btn-lg btn-block"  >
 
   </form>
   </div>

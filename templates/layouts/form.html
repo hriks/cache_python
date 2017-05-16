@@ -46,41 +46,18 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/"><b>User Management</b></a>
+          <a class="navbar-brand" href="/"><b>Cache Management</b></a>
         </div>
         <div class="collapse navbar-collapse" >
           <ul class="nav navbar-nav">
             <li {% if request.endpoint == 'home' %} class="active" {% endif %}><a href="{{ url_for('home') }}">Home</a></li>
-            <li {% if request.endpoint == 'about' %} class="active" {% endif %}><a href="{{ url_for('about') }}">About</a></li>
-            {% if session['name'] %}
-            {% if session['role'] == 'admin' %}
-            <li {% if request.endpoint == 'register' %} class="active" {% endif %}><a href="{{ url_for('register') }}">
-            Create New User
-            </a></li>
-            {% endif %}
-            <li {% if request.endpoint == 'users' %} class="active" {% endif %}><a href="{{ url_for('users') }}">
-            Users </a></li>
-             {% endif %}</a></li>
-
           </ul>
-          <ul class="nav navbar-nav pull-right">{% if session['name'] %}
-          
-            <li> <a>
-            <form action="search" method="post" class="form">
-            <input type="text" name="search" placeholder="search User..."> <input type="submit" name= "Search" value ="Search" />
-            </form>
-            </a></li>
-
-
-          <li> <a>
-            <b><i>Hi {{ session['name'] }}!</i></b>
-            </a></li>
-
-          <li><a href="{{ url_for('logout') }}">Logout</a></li> 
-             
-          {% else %} 
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-          {% endif %}
+          <ul class="nav navbar-nav pull-right">
+            <li>
+              <a>
+                <b><i>Hi Admin !</i></b>
+              </a>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -109,13 +86,7 @@
   <script type="text/javascript" src="/static/js/plugins.js" defer></script>
   <script type="text/javascript" src="/static/js/script.js" defer></script>
   
-  <!-- Google Analytics - Change UA-XXXXX-X to be your site's ID -->
-  <script>
-  window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
-  Modernizr.load({
-    load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
-  });
-  </script>
+
   <div>
     </br>
     </br>
@@ -124,7 +95,7 @@
     </br>
     </br>
   </div>
-<div id="footer" style="background-color: brown; color: white">
+  <div id="footer" style="background-color: brown; color: white">
     <div class="container">
       <p>AndroZDi &copy; All Rights Reserved.</p>
       {% block footer %}{% endblock %}

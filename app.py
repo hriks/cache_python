@@ -31,31 +31,37 @@ def id_requied(f):
 # Controllers.
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm(request.form)
-    if request.method == 'POST':
-        user = models.create_user(
-            form.userid.data, form.name.data, form.role.data,
-            form.email.data, form.password.data
-        )
-        if user == 1:
-            flash(
-                'ERROR! Please enter something or check yours\
-                username or user already exists'
-            )
-            return redirect(url_for('register'))
-        else:
-            return redirect(url_for('home'))
-    return render_template('forms/register.html', form=form)
-
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
     input_file = csv.DictReader(open(sys.argv[1]))
     for i in input_file:
         print i
-    return render_template('pages/placeholder.home.html') # noqa
+    return render_template('pages/placeholder.home.html')
+
+
+@app.route('/addinfo', methods=['GET', 'POST'])
+def addinfo():
+    form = add_student(request.form)
+    if request.method == 'POST':
+        ids = form.ids.data
+        print ids
+        student_name = form.student_name.data
+        print student_name
+        academics = form.academics.data
+        print academics
+        sports = form.sports.data
+        print sports
+        social = form.social.data
+        print social
+#        if user == 1:
+#            flash(
+#                'ERROR! Please enter something or check yours\
+#                username or user already exists'
+#            )
+#            return redirect(url_for('addinfo'))
+#        else:
+        return redirect(url_for('home'))
+    return render_template('forms/register.html', form=form)
 
 
 @app.route('/search', methods=['GET', 'POST'])
