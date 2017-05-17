@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for,\
     session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 from logging import Formatter, FileHandler
-#from functools import wraps
 from forms import *
 import logging
 import sys
@@ -15,20 +14,41 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 
 
-# Decorator's
+# Shutdown Server
 
-#def id_requied(f):
-#    @wraps(f)
-#    def wrap(*args, **kwargs):
-#        if session['ids']:
-#            return f(*args, **kwargs)
-#        else:
-#            flash(
-#                ' Sorry! You dont have entered anything')
-#            return redirect(url_for('home'))
-#    return wrap
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    write()
+    session.clear()
+    shutdown_server()
+    return 'Server shutting down...'
+
 
 # Controllers.
+
+
+def write():
+    records = cache_records()
+    print records
+    for i in records:
+        print i
+
+    with open(sys.argv[1], 'w+') as csvfile:
+        fieldnames = ['ids', 'student_name', 'academics', 'sports', 'social']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for record in records:
+            print records
+            writer.writerow(record)
 
 
 def read():
@@ -77,6 +97,8 @@ def delete_cache(ids):
             if int(delete['ids']) == int(ids):
                 data.pop(data.index(delete))
         print data
+        for ids in data:
+            ids['ids'] = data.index(ids) + 1
         return data
 
 
@@ -145,12 +167,15 @@ def update():
         print sports
         social = form.social.data
         print social
-        if academics is None or sports is None or social is None: # noqa
-            flash(
-                'ERROR! Please enter interger value on Score and text on Name or\
-                 check id already exists.'
-            )
-            return redirect(url_for('edit'))
+        if academics is None or academics >= 100:
+            flash('Please enter valid score for Academics')
+            return redirect(url_for('update'))
+        elif sports is None or sports >= 100:
+            flash('Please enter valid score for Sports')
+            return redirect(url_for('update'))
+        elif social is None or social >= 100:
+            flash('Please enter valid score for Sports')
+            return redirect(url_for('update'))
         else:
             print session['ids']
             data = update_cache(
@@ -181,11 +206,17 @@ def addinfo():
         print sports
         social = form.social.data
         print social
-        if academics is None or sports is None or social is None: # noqa
-            flash(
-                'ERROR! Please enter interger value on Score and text on Name or\
-                 check id already exists.'
-            )
+        if student_name is not str or None:
+            flash('Please Enter name')
+            return redirect(url_for('update'))
+        elif academics is None or academics >= 100:
+            flash('Please enter valid score for Academics')
+            return redirect(url_for('update'))
+        elif sports is None or sports >= 100:
+            flash('Please enter valid score for Sports')
+            return redirect(url_for('addinfo'))
+        elif social is None or social >= 100:
+            flash('Please enter valid score for Sports')
             return redirect(url_for('addinfo'))
         else:
             data = write_cache(
@@ -205,9 +236,13 @@ def search():
     if request.method == 'POST':
         search = request.form['search']
         records = cache_records()
-        match = filter(
-            lambda record: int(record["ids"]) == int(search), records
-        )
+        try:
+            match = filter(
+                lambda record: int(record["ids"]) == int(search), records
+            )
+        except Exception:
+            flash('Invalid ID Provided, Please Provide ID')
+            return redirect(url_for('home'))
         print match
         return render_template(
             'pages/placeholder.search.html', match=match, search=search
@@ -237,38 +272,6 @@ if not app.debug:
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.info('errors')
-
-
-# Shutdown Server
-def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-
-
-def write():
-    records = cache_records()
-    print records
-    for i in records:
-        print i
-
-    with open(sys.argv[1], 'w+') as csvfile:
-        fieldnames = ['ids', 'student_name', 'academics', 'sports', 'social']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-        writer.writeheader()
-        for record in records:
-            print records
-            writer.writerow(record)
-
-
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    write()
-    session.clear()
-    shutdown_server()
-    return 'Server shutting down...'
 
 
 # Default port:
