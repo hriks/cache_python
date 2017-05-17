@@ -56,7 +56,6 @@
             <li {% if request.endpoint == 'addinfo' %} class="active" {% endif %}><a href="{{ url_for('addinfo') }}">
             Add New Record
             </a></li>
-
           </ul>
           <ul class="nav navbar-nav pull-right">
 
@@ -89,6 +88,11 @@
           <input type="submit" name= "Search" value ="Search" />
         </form>
       </a>
+      <form action="shutdown" method= POST>
+                <button name="submit" type="submit" style="width: 100%">
+                  Shutdown  
+                </button>
+      </form>
 
       {% with messages = get_flashed_messages() %}
         {% if messages %}
