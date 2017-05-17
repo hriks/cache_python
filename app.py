@@ -247,6 +247,21 @@ if not app.debug:
     app.logger.info('errors')
 
 
+# Shutdown Server
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    session.clear()
+    shutdown_server()
+    return 'Server shutting down...'
+
+
 # Default port:
 if __name__ == '__main__':
     app.run(debug=True)
