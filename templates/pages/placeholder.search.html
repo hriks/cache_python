@@ -41,6 +41,14 @@
                 </button>
             </form>
         </font>
+        <font color="#000000" size="1">
+            <form action="delete" method= POST>
+                <input name = delete type="hidden" value="YES">
+                <button name="submit" value="{{search}}" type="submit" style="width: 100%">
+                    Delete
+                </button>
+            </form>
+        </font>
     </div>
 {% else %}
     Sorry we found nothing !
