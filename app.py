@@ -208,12 +208,12 @@ def addinfo():
         print sports
         social = form.social.data
         print social
-        if student_name is not str or None:
+        if student_name is None:
             flash('Please Enter name')
-            return redirect(url_for('update'))
+            return redirect(url_for('addinfo'))
         elif academics is None or academics >= 100:
             flash('Please enter valid score for Academics')
-            return redirect(url_for('update'))
+            return redirect(url_for('addinfo'))
         elif sports is None or sports >= 100:
             flash('Please enter valid score for Sports')
             return redirect(url_for('addinfo'))
