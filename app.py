@@ -29,7 +29,8 @@ def shutdown():
     write()
     session.clear()
     shutdown_server()
-    return 'Server shutting down...'
+    flash('Records Saved')
+    return render_template('layouts/shutdown.html')
 
 
 # Controllers.
@@ -246,11 +247,11 @@ def search():
                 lambda record: int(record["ids"]) == int(search), records
             )
             for i in records:
-                if i['ids'] == search:
+                if i['ids'] == int(search):
                     print i
-                    print count[search]
-                    count[search] = count[search] + 1
-
+                    print count[int(search)]
+                    count[int(search)] = count[int(search)] + 1
+            print match
         except Exception:
             flash('Invalid ID Provided, Please Provide ID')
             return redirect(url_for('home'))
