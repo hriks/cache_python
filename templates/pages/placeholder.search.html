@@ -9,6 +9,26 @@
         border: 1px solid #73AD21;
         padding: 10px;
     }
+    .button {
+    display: inline-block;
+  padding: 8px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 9px #999;
+}
+.button:hover {background-color: #3e8e41}
+
+.button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
     </style>
 
     <div style="text-align: center;">
@@ -36,15 +56,16 @@
         <font color="#000000" size="1">
             <form action="edit" method= POST>
                 <input name = name type="hidden" value="{{match[0]["student_name"]}}">
-                <button name="submit" value="{{search}}" type="submit" style="width: 100%">
+                <button name="submit" value="{{search}}" type="submit" class="button" style="width: 100%">
                     Update
                 </button>
             </form>
         </font>
+        </br>
         <font color="#000000" size="1">
             <form action="delete" method= POST>
                 <input name = delete type="hidden" value="YES">
-                <button name="submit" value="{{search}}" type="submit" style="width: 100%">
+                <button name="submit" value="{{search}}" type="submit" class="button delete" style="width: 100%">
                     Delete
                 </button>
             </form>

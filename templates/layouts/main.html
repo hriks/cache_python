@@ -32,7 +32,47 @@
 <script src="/static/js/libs/modernizr-2.8.2.min.js"></script>
 <!--[if lt IE 9]><script src="/static/js/libs/respond-1.4.2.min.js"></script><![endif]-->
 <!-- /scripts -->
+<style>
+.button {
+    display: inline-block;
+  padding: 8px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 9px #999;
+}
+.button:hover {background-color: #3e8e41}
 
+.button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+input[type=text] {
+    width: 130px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    background-position: 10px 10px; 
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+
+input[type=text]:focus {
+    width: 70%;
+}
+
+</style>
 </head>
 <body>
 
@@ -70,50 +110,46 @@
 
     <!-- Begin page content -->
     <main id="content" role="main" class="container" >
-      <div class="alert alert-block alert-error fade in" style="background-color: lightblue">
-          <a class="close" data-dismiss="alert">&times;</a>
-          <p style="text-align: center; color: red">
-            <b>File Currently in use</b>
-          </p>
-      </div>
-      <div class="alert alert-block alert-error fade in" style="background-color: lightblue">
-          <a class="close" data-dismiss="alert">&times;</a>
-          <p style="text-align: center; color: red">
-            <b>Search Record's by ID's</b>
-          </p>
-      </div>
-      <a style="text-align: center;">
-        <form action="search" method="post" class="form">
-          <input type="text" name="search" placeholder="Enter ID....">
-          <input type="submit" name= "Search" value ="Search" />
-        </form>
-      </a>
-      <form action="shutdown" method= POST>
-                <button name="submit" type="submit" style="width: 100%">
-                  Shutdown  
-                </button>
-      </form>
-
-      {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages() %}
         {% if messages %}
           {% for message in messages %}
-            <div class="alert alert-block alert-error fade in" style="background-color: lightblue">
+            <div class="alert alert-block alert-error fade in" style="background-color: lightgreen">
               <a class="close" data-dismiss="alert">&times;</a>
               <p style="text-align: center; color: red">
-              {{ message }}
+              <b>{{ message }}</b>
               </p>
             </div>
           {% endfor %}
         {% endif %}
       {% endwith %}
-
+      <div class="alert alert-block alert-error fade in" style="background-color: lightgreen">
+        <a class="close" data-dismiss="alert">&times;</a>
+        <p style="text-align: center; color: red">
+            <b>File Currently in use</b>
+        </p>
+        <form action="shutdown" method= POST>
+          <b>
+            <a>
+              <button name="submit" class ="button" type="submit" style="width: 100%">
+                Shut Down
+              </button>
+            </a>
+          </b>
+        </form>
+      </div>
+      <div style="text-align: right;">
+        <form action="search" method="post" class="form">
+          <input type="text" name="search" placeholder="Enter ID....">
+          <input type="submit" class='button' name= "Search" value ="Search" />
+        </form>
+      </div>
       {% block content %}{% endblock %}
       
     </main>
 
   </div>
 
-  <div id="footer" style="background-color: blue; color: white">
+  <div id="footer" style="background-color: green; color: white">
     <div class="container">
       <p>AndroZDi &copy; All Rights Reserved. </p>
     </div>
