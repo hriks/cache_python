@@ -52,7 +52,6 @@ def write():
 
 
 def read():
-    session.clear()
     input_file = csv.DictReader(open(sys.argv[1]))
     data = []
     for i in input_file:
@@ -68,6 +67,9 @@ def read_cache():
 
 def write_cache(student_name, academics, sports, social):
     data = cache_records()
+    if len(data) >= 20:
+        count = session['count']
+        delete_cache(count)
     new_dict = {}
     new_dict['ids'] = ids_get()
     new_dict['student_name'] = student_name
@@ -233,6 +235,9 @@ def addinfo():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    count = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0} # noqa
+    inverse = [(value, key) for key, value in count.items()]
+    session['count'] = max(inverse)[0]
     if request.method == 'POST':
         search = request.form['search']
         records = cache_records()
@@ -240,6 +245,12 @@ def search():
             match = filter(
                 lambda record: int(record["ids"]) == int(search), records
             )
+            for i in records:
+                if i['ids'] == search:
+                    print i
+                    print count[search]
+                    count[search] = count[search] + 1
+
         except Exception:
             flash('Invalid ID Provided, Please Provide ID')
             return redirect(url_for('home'))
