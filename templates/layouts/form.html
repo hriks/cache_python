@@ -51,6 +51,9 @@
         <div class="collapse navbar-collapse" >
           <ul class="nav navbar-nav">
             <li {% if request.endpoint == 'home' %} class="active" {% endif %}><a href="{{ url_for('home') }}">Home</a></li>
+            <li {% if request.endpoint == 'addinfo' %} class="active" {% endif %}><a href="{{ url_for('addinfo') }}">
+            Add New Record
+            </a></li>
           </ul>
           <ul class="nav navbar-nav pull-right">
             <li>
@@ -94,8 +97,11 @@
     </br>
     </br>
     </br>
+    </br>
+    </br>
+    </br>
   </div>
-  <div id="footer" style="background-color: brown; color: white">
+  <div id="footer" style="background-color: blue; color: white">
     <div class="container">
       <p>AndroZDi &copy; All Rights Reserved.</p>
       {% block footer %}{% endblock %}
