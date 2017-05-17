@@ -49,6 +49,17 @@ def read_cache():
 def write_cache(student_name, academics, sports, social):
     data = cache_records()
     new_dict = {}
+    new_dict['ids'] = ids_get()
+    new_dict['student_name'] = student_name
+    new_dict['academics'] = academics
+    new_dict['sports'] = sports
+    new_dict['social'] = social
+    data.append(new_dict)
+    return data
+
+
+def update_cache(student_name, academics, sports, social):
+    data = cache_records()
     if session['ids'] and session['student_name']:
         for update in data:
             if int(update['ids']) == int(session['ids']) and update['student_name'] == session['student_name']: # noqa
@@ -57,13 +68,21 @@ def write_cache(student_name, academics, sports, social):
                 update['social'] = social
         print data
         return data
-    else:
-        new_dict['ids'] = ids_get()
-        new_dict['student_name'] = student_name
-        new_dict['academics'] = academics
-        new_dict['sports'] = sports
-        new_dict['social'] = social
-        data.append(new_dict)
+    elif session['ids'] and session['delete']:
+        for delete in data:
+            if int(delete['ids']) == int(session['ids']) and session['delete']: # noqa
+                data.pop(data.index(delete))
+        print data
+        return data
+
+
+def delete_cache(student_name, academics, sports, social):
+    data = cache_records()
+    if session['ids'] and session['delete']:
+        for delete in data:
+            if int(delete['ids']) == int(session['ids']) and session['delete']: # noqa
+                data.pop(data.index(delete))
+        print data
         return data
 
 
@@ -85,7 +104,25 @@ def cache_records():
 def home():
     session['ids'] = None
     session['student_name'] = None
+    session['delete'] = None
     return render_template('pages/placeholder.home.html')
+
+
+@app.route('/delete', methods=['GET', 'POST'])
+def delete():
+    if request.method == 'POST':
+        session['ids'] = request.form['submit']
+        session['delete'] = request.form['delete']
+        data = delete_cache(
+            None, None, None, None
+        )
+        session['data'] = data
+        flash(
+            'Successfully Deleted ID %s' % (session['ids'])
+        )
+        session['ids'] = None
+        session['student_name'] = None
+        return redirect(url_for('home'))
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -123,7 +160,7 @@ def update():
             )
             return redirect(url_for('edit'))
         else:
-            data = write_cache(
+            data = update_cache(
                 session['student_name'], academics, sports, social
             )
             session['data'] = data
@@ -184,22 +221,6 @@ def search():
             'pages/placeholder.search.html', match=match, search=search
         )
     return render_template('pages/placeholder.search.html', search=search)
-
-
-@app.route('/message', methods=['GET', 'POST'])
-def message():
-    if request.method == 'POST':
-        models.post_messages(
-            session['name'], request.form['message'])
-        return redirect(url_for('home'))
-
-
-@app.route('/delete', methods=['GET', 'POST'])
-def delete():
-    if request.method == 'POST':
-        models.message_delete(
-            request.form['submit'])
-        return redirect(url_for('home'))
 
 
 # Error handlers.
