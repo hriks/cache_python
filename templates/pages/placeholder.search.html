@@ -19,66 +19,30 @@
         You search for '<b> {{search}} </b>'</br>
 
 {% if match %}
-{% for user in match %}  
-        We had found : <b>{{ user[0] }}</b>
+        We had found : <b>{{ match[0]['student_name'] }}</b>
 
     </div>
     <div class="center">
         <b>
-            Username :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{user[0]}}
+            Student Name :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{match[0]["student_name"]}}
             </br>
-            Role Type: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{user[2]}}
+            Academics Score: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{match[0]["academics"]}}
             </br>
-            Email  : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ user[5]}} 
+            Sports Score  : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ match[0]["sports"]}} 
+            </br>
+            Social Score  : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ match[0]["social"]}} 
             </br>
         </b>
-{% if (session['role'] == 'admin') or (session['role'] == 'manager') %}
         <font color="#000000" size="1">
             <form action="edit" method= POST>
-                <button name="submit" value="{{ user[0] }}" type="submit" style="width: 100%">
+                <button name="submit" value="" type="submit" style="width: 100%">
                     Edit
                 </button>
             </form>
         </font>
-    {% if user[3] %}
-
-        <b>
-            <font color="white" size="1">
-                <form action="block" method= POST>
-                    <input name = userid type="hidden" value="{{ user[0] }}">
-                    <button name="submit" value="False" type="submit" style="width: 100%; background-color: green">
-                        Unblock
-                    </button>
-                </form>
-            </font>
-        </b>
-    {% else %}
-        <b>
-            <font color="white" size="1">
-                <form action="block" method= POST >
-                    <input name = userid type="hidden" value="{{ user[0] }}">
-                    <button name="submit" value="True" type="submit" style="width: 100%; background-color: red;">
-                        Block
-                    </button>
-                </form>
-            </font>
-        </b>
-
-    {% endif %}
-{% elif user[3] %}
-
-        <button name="submit" type="submit" style="width: 100%; background-color: red;">
-            Account is Blocked
-        </button>
-{% else %}
-        <button name="submit" type="submit" style="width: 100%; background-color: green;color: white    ">
-            Account is Active
-        </button>
-{% endif %}
-{% endfor %}
     </div>
 {% else %}
-Sorry we found nothing !
+    Sorry we found nothing !
 {% endif %}
 {% endblock custom_style %}
 

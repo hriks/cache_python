@@ -20,11 +20,11 @@ db = SQLAlchemy(app)
 def id_requied(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if session['role'] == 'admin':
+        if session['id']:
             return f(*args, **kwargs)
         else:
             flash(
-                ' Sorry! You dont have any permission to perform such action')
+                ' Sorry! You dont have entered anything')
             return redirect(url_for('home'))
     return wrap
 
@@ -33,10 +33,11 @@ def id_requied(f):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('pages/placeholder.home.html', data=data)
+    return render_template('pages/placeholder.home.html')
 
 
 def read():
+    session.clear()
     input_file = csv.DictReader(open(sys.argv[1]))
     data = []
     for i in input_file:
@@ -44,10 +45,16 @@ def read():
     return data
 
 
+def read_cache():
+    data = session['data']
+    print 'read cache', data
+    return data
+
+
 def write_cache(student_name, academics, sports, social):
-    data = read()
+    data = cache_records()
     new_dict = {}
-    new_dict['ids'] = len(data) + 1
+    new_dict['ids'] = ids_get()
     new_dict['student_name'] = student_name
     new_dict['academics'] = academics
     new_dict['sports'] = sports
@@ -56,10 +63,17 @@ def write_cache(student_name, academics, sports, social):
     return data
 
 
+def ids_get():
+    try:
+        return len(read_cache()) + 1
+    except Exception:
+        return len(read()) + 1
+
+
 @app.route('/addinfo', methods=['GET', 'POST'])
 def addinfo():
+    ids = ids_get()
     form = add_student(request.form)
-    ids = len(read()) + 1
     if request.method == 'POST':
         student_name = form.student_name.data
         print student_name
@@ -76,20 +90,38 @@ def addinfo():
             )
             return redirect(url_for('addinfo'))
         else:
-            write_cache(student_name, academics, sports, social)
-            flash('Successfully Added new Records with ID %s for %s' )
+            data = write_cache(
+                student_name, academics, sports, social
+            )
+            session['data'] = data
+            flash(
+                'Successfully Added new Records with ID %s \
+                for Student Name %s' % (ids, student_name)
+            )
             return redirect(url_for('home'))
     return render_template('forms/register.html', form=form, ids=ids)
 
 
+def cache_records():
+    try:
+        return read_cache()
+    except Exception:
+        return read()
+
+
 @app.route('/search', methods=['GET', 'POST'])
-@id_requied
 def search():
-    search = request.form['search']
-    match = flask_login_auth.searchbox(search)
-    print match
-    return render_template('pages/placeholder.search.html', search=search,
-                           match=match)
+    if request.method == 'POST':
+        search = request.form['search']
+        records = cache_records()
+        match = filter(
+            lambda record: int(record["ids"]) == int(search), records
+        )
+        print match
+        return render_template(
+            'pages/placeholder.search.html', match=match, search=search
+        )
+    return render_template('pages/placeholder.search.html', search=search)
 
 
 @app.route('/message', methods=['GET', 'POST'])
@@ -152,7 +184,6 @@ def update():
 
 @app.errorhandler(500)
 def internal_error(error):
-    # db_session.rollback()
     return render_template('errors/500.html'), 500
 
 

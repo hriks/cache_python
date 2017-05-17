@@ -74,7 +74,7 @@
       <div class="alert alert-block alert-error fade in" style="background-color: lightblue">
           <a class="close" data-dismiss="alert">&times;</a>
           <p style="text-align: center; color: red">
-            <b>File Upload Successfully and currently in use</b>
+            <b>File Currently in use</b>
           </p>
       </div>
       <div class="alert alert-block alert-error fade in" style="background-color: lightblue">
@@ -93,9 +93,11 @@
       {% with messages = get_flashed_messages() %}
         {% if messages %}
           {% for message in messages %}
-            <div class="alert alert-block alert-error fade in">
+            <div class="alert alert-block alert-error fade in" style="background-color: lightblue">
               <a class="close" data-dismiss="alert">&times;</a>
+              <p style="text-align: center; color: red">
               {{ message }}
+              </p>
             </div>
           {% endfor %}
         {% endif %}
@@ -107,7 +109,7 @@
 
   </div>
 
-  <div id="footer" style="background-color: lightblue; color: white">
+  <div id="footer" style="background-color: blue; color: white">
     <div class="container">
       <p>AndroZDi &copy; All Rights Reserved. </p>
     </div>
