@@ -58,29 +58,23 @@ def write_cache(student_name, academics, sports, social):
     return data
 
 
-def update_cache(student_name, academics, sports, social):
+def update_cache(ids, student_name, academics, sports, social):
     data = cache_records()
-    if session['ids'] and session['student_name']:
+    if ids and student_name:
         for update in data:
-            if int(update['ids']) == int(session['ids']) and update['student_name'] == session['student_name']: # noqa
+            if int(update['ids']) == int(ids) and update['student_name'] == student_name: # noqa
                 update['academics'] = academics
                 update['sports'] = sports
                 update['social'] = social
         print data
         return data
-    elif session['ids'] and session['delete']:
-        for delete in data:
-            if int(delete['ids']) == int(session['ids']) and session['delete']: # noqa
-                data.pop(data.index(delete))
-        print data
-        return data
 
 
-def delete_cache(student_name, academics, sports, social):
+def delete_cache(ids):
     data = cache_records()
-    if session['ids'] and session['delete']:
+    if ids:
         for delete in data:
-            if int(delete['ids']) == int(session['ids']) and session['delete']: # noqa
+            if int(delete['ids']) == int(ids):
                 data.pop(data.index(delete))
         print data
         return data
@@ -102,9 +96,6 @@ def cache_records():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    session['ids'] = None
-    session['student_name'] = None
-    session['delete'] = None
     return render_template('pages/placeholder.home.html')
 
 
@@ -113,12 +104,13 @@ def delete():
     if request.method == 'POST':
         session['ids'] = request.form['submit']
         session['delete'] = request.form['delete']
+        ids = session['ids']
         data = delete_cache(
-            None, None, None, None
+            session['ids']
         )
         session['data'] = data
         flash(
-            'Successfully Deleted ID %s' % (session['ids'])
+            'Successfully Deleted ID %s' % (ids)
         )
         session['ids'] = None
         session['student_name'] = None
@@ -160,16 +152,16 @@ def update():
             )
             return redirect(url_for('edit'))
         else:
+            print session['ids']
             data = update_cache(
-                session['student_name'], academics, sports, social
+                session['ids'], session['student_name'],
+                academics, sports, social
             )
             session['data'] = data
             flash(
                 'Successfully Updated %s \
                 with ID %s' % (name, ids)
             )
-            session['ids'] = None
-            session['student_name'] = None
             return redirect(url_for('home'))
     return render_template(
         'forms/update.html', form=form, ids=ids, name=name
@@ -255,8 +247,25 @@ def shutdown_server():
     func()
 
 
+def write():
+    records = cache_records()
+    print records
+    for i in records:
+        print i
+
+    with open(sys.argv[1], 'w+') as csvfile:
+        fieldnames = ['ids', 'student_name', 'academics', 'sports', 'social']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for record in records:
+            print records
+            writer.writerow(record)
+
+
 @app.route('/shutdown', methods=['POST'])
 def shutdown():
+    write()
     session.clear()
     shutdown_server()
     return 'Server shutting down...'
