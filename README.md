@@ -45,6 +45,10 @@ Run app by
 ```
 python app.py filename(Currently supported only for CSV)
 ```
+Example
+```
+python app.py test.csv
+```
 
 ## NOTE
 
