@@ -29,7 +29,8 @@ def shutdown():
     write()
     session.clear()
     shutdown_server()
-    return 'Server shutting down...'
+    flash('Records Saved')
+    return render_template('layouts/shutdown.html')
 
 
 # Controllers.
@@ -208,12 +209,12 @@ def addinfo():
         print sports
         social = form.social.data
         print social
-        if student_name is not str or None:
+        if student_name is None:
             flash('Please Enter name')
-            return redirect(url_for('update'))
+            return redirect(url_for('addinfo'))
         elif academics is None or academics >= 100:
             flash('Please enter valid score for Academics')
-            return redirect(url_for('update'))
+            return redirect(url_for('addinfo'))
         elif sports is None or sports >= 100:
             flash('Please enter valid score for Sports')
             return redirect(url_for('addinfo'))
@@ -246,11 +247,11 @@ def search():
                 lambda record: int(record["ids"]) == int(search), records
             )
             for i in records:
-                if i['ids'] == search:
+                if i['ids'] == int(search):
                     print i
-                    print count[search]
-                    count[search] = count[search] + 1
-
+                    print count[int(search)]
+                    count[int(search)] = count[int(search)] + 1
+            print match
         except Exception:
             flash('Invalid ID Provided, Please Provide ID')
             return redirect(url_for('home'))
