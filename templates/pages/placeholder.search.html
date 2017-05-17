@@ -35,8 +35,9 @@
         </b>
         <font color="#000000" size="1">
             <form action="edit" method= POST>
-                <button name="submit" value="" type="submit" style="width: 100%">
-                    Edit
+                <input name = name type="hidden" value="{{match[0]["student_name"]}}">
+                <button name="submit" value="{{search}}" type="submit" style="width: 100%">
+                    Update
                 </button>
             </form>
         </font>
