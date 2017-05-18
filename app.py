@@ -39,7 +39,6 @@ def shutdown():
 def write():
     try:
         records = cache_records()
-        print records
         for i in records:
             print i
     except Exception:
@@ -52,7 +51,6 @@ def write():
         writer.writeheader()
         try:
             for record in records:
-                print records
                 writer.writerow(record)
         except Exception:
             flash('New File created with name %s' % (sys.argv[1]))
@@ -68,7 +66,6 @@ def read():
 
 def read_cache():
     data = session['data']
-    print 'read cache', data
     return data
 
 
@@ -95,7 +92,6 @@ def update_cache(ids, student_name, academics, sports, social):
                 update['academics'] = academics
                 update['sports'] = sports
                 update['social'] = social
-        print data
         return data
 
 
@@ -105,7 +101,6 @@ def delete_cache(ids):
         for delete in data:
             if int(delete['ids']) == int(ids):
                 data.pop(data.index(delete))
-        print data
         for ids in data:
             ids['ids'] = data.index(ids) + 1
         return data
@@ -165,17 +160,12 @@ def edit():
 @app.route('/update', methods=['GET', 'POST'])
 def update():
     form = Update_student_info(request.form)
-    print session['ids']
     ids = session['ids']
-    print session['student_name']
     name = session['student_name']
     if request.method == 'POST':
         academics = form.academics.data
-        print academics
         sports = form.sports.data
-        print sports
         social = form.social.data
-        print social
         if academics is None or int(academics) > 100:
             flash(
                 '%s is not a valid score.\
@@ -195,7 +185,6 @@ def update():
                     social))
             return redirect(url_for('update'))
         else:
-            print session['ids']
             data = update_cache(
                 session['ids'], session['student_name'],
                 academics, sports, social
@@ -217,13 +206,9 @@ def addinfo():
     form = add_student(request.form)
     if request.method == 'POST':
         student_name = form.student_name.data
-        print student_name
         academics = form.academics.data
-        print academics
         sports = form.sports.data
-        print sports
         social = form.social.data
-        print social
         if student_name is None:
             flash('%s is not vaild. Please Enter valid name' % student_name)
             return redirect(url_for('addinfo'))
@@ -268,7 +253,9 @@ def search():
         try:
             records = cache_records()
         except Exception:
-            flash('No such file Present, please provide a vailid file or shutdown to create file')
+            flash(
+                'No such file Present,\
+                 please provide a vailid file or shutdown to create file')
             return redirect(url_for('home'))
         try:
             match = filter(
@@ -276,14 +263,10 @@ def search():
             )
             for i in records:
                 if i['ids'] == int(search):
-                    print i
-                    print count[int(search)]
                     count[int(search)] = count[int(search)] + 1
-            print match
         except Exception:
             flash('Invalid ID Provided, Please Provide ID')
             return redirect(url_for('home'))
-        print match
         return render_template(
             'pages/placeholder.search.html', match=match, search=search
         )
