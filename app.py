@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for,\
     session, flash
-from flask.ext.sqlalchemy import SQLAlchemy
 from logging import Formatter, FileHandler
 from forms import *
 import logging
