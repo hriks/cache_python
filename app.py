@@ -37,19 +37,25 @@ def shutdown():
 
 
 def write():
-    records = cache_records()
-    print records
-    for i in records:
-        print i
+    try:
+        records = cache_records()
+        print records
+        for i in records:
+            print i
+    except Exception:
+        flash('New File created with name %s' % (sys.argv[1]))
 
     with open(sys.argv[1], 'w+') as csvfile:
         fieldnames = ['ids', 'student_name', 'academics', 'sports', 'social']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
-        for record in records:
-            print records
-            writer.writerow(record)
+        try:
+            for record in records:
+                print records
+                writer.writerow(record)
+        except Exception:
+            flash('New File created with name %s' % (sys.argv[1]))
 
 
 def read():
@@ -170,14 +176,23 @@ def update():
         print sports
         social = form.social.data
         print social
-        if academics is None or academics >= 100:
-            flash('Please enter valid score for Academics')
+        if academics is None or int(academics) > 100:
+            flash(
+                '%s is not a valid score.\
+                 Please enter valid score for Academics' % (
+                    academics))
             return redirect(url_for('update'))
-        elif sports is None or sports >= 100:
-            flash('Please enter valid score for Sports')
+        elif sports is None or int(sports) > 100:
+            flash(
+                '%s is not a valid score.\
+                 Please enter valid score for Sports' % (
+                    sports))
             return redirect(url_for('update'))
-        elif social is None or social >= 100:
-            flash('Please enter valid score for Sports')
+        elif social is None or int(social) > 100:
+            flash(
+                '%s is not a valid score.\
+                 Please enter valid score for Social' % (
+                    social))
             return redirect(url_for('update'))
         else:
             print session['ids']
@@ -210,16 +225,25 @@ def addinfo():
         social = form.social.data
         print social
         if student_name is None:
-            flash('Please Enter name')
+            flash('%s is not vaild. Please Enter valid name' % student_name)
             return redirect(url_for('addinfo'))
-        elif academics is None or academics >= 100:
-            flash('Please enter valid score for Academics')
+        elif academics is None or int(academics) > 100:
+            flash(
+                '%s is not a valid score.\
+                 Please enter valid score for Academics' % (
+                    academics))
             return redirect(url_for('addinfo'))
-        elif sports is None or sports >= 100:
-            flash('Please enter valid score for Sports')
+        elif sports is None or int(sports) > 100:
+            flash(
+                '%s is not a valid score.\
+                 Please enter valid score for Sports' % (
+                    sports))
             return redirect(url_for('addinfo'))
-        elif social is None or social >= 100:
-            flash('Please enter valid score for Sports')
+        elif social is None or int(social) > 100:
+            flash(
+                '%s is not a valid score.\
+                 Please enter valid score for Social' % (
+                    social))
             return redirect(url_for('addinfo'))
         else:
             data = write_cache(
@@ -241,7 +265,11 @@ def search():
     session['count'] = max(inverse)[0]
     if request.method == 'POST':
         search = request.form['search']
-        records = cache_records()
+        try:
+            records = cache_records()
+        except Exception:
+            flash('No such file Present, please provide a vailid file or shutdown to create file')
+            return redirect(url_for('home'))
         try:
             match = filter(
                 lambda record: int(record["ids"]) == int(search), records
