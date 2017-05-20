@@ -10,7 +10,6 @@ import csv
 app = Flask(__name__)
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 app.config.from_object('config')
-db = SQLAlchemy(app)
 
 
 # Shutdown Server
@@ -201,7 +200,11 @@ def update():
 
 @app.route('/addinfo', methods=['GET', 'POST'])
 def addinfo():
-    ids = ids_get()
+    try:
+        ids = ids_get()
+    except Exception:
+        flash('File Doesnot exits Shutdown to Create a file with name %s' % (sys.argv[1]))
+        return redirect(url_for('home'))
     form = add_student(request.form)
     if request.method == 'POST':
         student_name = form.student_name.data
