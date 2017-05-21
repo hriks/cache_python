@@ -27,23 +27,37 @@ def shutdown():
     write()
     session.clear()
     shutdown_server()
-    flash('Records Saved')
+    print len(cache_records())
+    try:
+        if len(cache_records()) >= 1:
+            flash(
+                'Notification : Records Saved !'
+            )
+    except Exception:
+        flash(
+            'Notification : New file created with name "%s" ' % (
+                sys.argv[1]
+            )
+        )
     return render_template('layouts/shutdown.html')
 
 
 # Controllers.
-
-
 def write():
     try:
         records = cache_records()
         for i in records:
             print i
     except Exception:
-        flash('New File created with name %s' % (sys.argv[1]))
-
+        flash(
+            'New File created with name %s' % (
+                sys.argv[1]
+            )
+        )
     with open(sys.argv[1], 'w+') as csvfile:
-        fieldnames = ['ids', 'student_name', 'academics', 'sports', 'social']
+        fieldnames = [
+            'ids', 'student_name', 'academics', 'sports', 'social'
+        ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
@@ -69,9 +83,10 @@ def read_cache():
 
 def write_cache(student_name, academics, sports, social):
     data = cache_records()
-    if len(data) >= 20:
+    if len(data) > 20:
         count = session['count']
-        delete_cache(count)
+        print count
+        data = delete_cache(count)
     new_dict = {}
     new_dict['ids'] = ids_get()
     new_dict['student_name'] = student_name
@@ -129,12 +144,10 @@ def delete():
         session['ids'] = request.form['submit']
         session['delete'] = request.form['delete']
         ids = session['ids']
-        data = delete_cache(
-            session['ids']
-        )
+        data = delete_cache(ids)
         session['data'] = data
         flash(
-            'Successfully Deleted ID %s' % (ids)
+            'Notification : Successfully deleted records with ID %s' % (ids)
         )
         session['ids'] = None
         session['student_name'] = None
@@ -166,19 +179,19 @@ def update():
         social = form.social.data
         if academics is None or int(academics) > 100:
             flash(
-                '%s is not a valid score.\
+                'Notification : %s is not a valid score.\
                  Please enter valid score for Academics' % (
                     academics))
             return redirect(url_for('update'))
         elif sports is None or int(sports) > 100:
             flash(
-                '%s is not a valid score.\
+                'Notification : %s is not a valid score.\
                  Please enter valid score for Sports' % (
                     sports))
             return redirect(url_for('update'))
         elif social is None or int(social) > 100:
             flash(
-                '%s is not a valid score.\
+                'Notification : %s is not a valid score.\
                  Please enter valid score for Social' % (
                     social))
             return redirect(url_for('update'))
@@ -189,7 +202,7 @@ def update():
             )
             session['data'] = data
             flash(
-                'Successfully Updated %s \
+                'Notification : Successfully updated record for %s \
                 with ID %s' % (name, ids)
             )
             return redirect(url_for('home'))
@@ -203,7 +216,10 @@ def addinfo():
     try:
         ids = ids_get()
     except Exception:
-        flash('File Doesnot exits Shutdown to Create a file with name %s' % (sys.argv[1]))
+        flash(
+            'Notification : File doesnot exits. Shutdown to create a \
+            file with name %s' % (sys.argv[1])
+        )
         return redirect(url_for('home'))
     form = add_student(request.form)
     if request.method == 'POST':
@@ -212,25 +228,31 @@ def addinfo():
         sports = form.sports.data
         social = form.social.data
         if student_name is None:
-            flash('%s is not vaild. Please Enter valid name' % student_name)
+            flash(
+                'Notification : %s is not vaild. Please Enter valid \
+                name' % student_name
+            )
             return redirect(url_for('addinfo'))
         elif academics is None or int(academics) > 100:
             flash(
-                '%s is not a valid score.\
+                'Notification : %s is not a valid score.\
                  Please enter valid score for Academics' % (
-                    academics))
+                    academics)
+            )
             return redirect(url_for('addinfo'))
         elif sports is None or int(sports) > 100:
             flash(
-                '%s is not a valid score.\
+                'Notification : %s is not a valid score.\
                  Please enter valid score for Sports' % (
-                    sports))
+                    sports)
+            )
             return redirect(url_for('addinfo'))
         elif social is None or int(social) > 100:
             flash(
-                '%s is not a valid score.\
+                'Notification : %s is not a valid score.\
                  Please enter valid score for Social' % (
-                    social))
+                    social)
+            )
             return redirect(url_for('addinfo'))
         else:
             data = write_cache(
@@ -238,8 +260,10 @@ def addinfo():
             )
             session['data'] = data
             flash(
-                'Successfully Added new Records with ID %s \
-                for Student Name %s' % (ids, student_name)
+                'Notification : %s successfully added to records \
+                with ID %s' % (
+                    student_name, ids
+                )
             )
             return redirect(url_for('home'))
     return render_template('forms/register.html', form=form, ids=ids)
@@ -256,8 +280,9 @@ def search():
             records = cache_records()
         except Exception:
             flash(
-                'No such file Present,\
-                 please provide a vailid file or shutdown to create file')
+                'Notification : No such file present.\
+                 Please provide a valid file or shutdown to create file'
+            )
             return redirect(url_for('home'))
         try:
             match = filter(
@@ -267,7 +292,7 @@ def search():
                 if i['ids'] == int(search):
                     count[int(search)] = count[int(search)] + 1
         except Exception:
-            flash('Invalid ID Provided, Please Provide ID')
+            flash('Notification : Invalid ID provided, Please provide ID')
             return redirect(url_for('home'))
         return render_template(
             'pages/placeholder.search.html', match=match, search=search
