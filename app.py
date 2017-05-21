@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for,\
-    session, flash
+from flask import Flask, render_template as render, request, redirect,\
+    url_for, session as s
+from flask import flash as hriks
 from logging import Formatter, FileHandler
 from forms import *
 import logging
@@ -25,21 +26,21 @@ def shutdown_server():
 @app.route('/shutdown', methods=['POST'])
 def shutdown():
     write()
-    session.clear()
+    s.clear()
     shutdown_server()
     print len(cache_records())
     try:
         if len(cache_records()) >= 1:
-            flash(
+            hriks(
                 'Notification : Records Saved !'
             )
     except Exception:
-        flash(
+        hriks(
             'Notification : New file created with name "%s" ' % (
                 sys.argv[1]
             )
         )
-    return render_template('layouts/shutdown.html')
+    return render('layouts/shutdown.html')
 
 
 # Controllers.
@@ -49,7 +50,7 @@ def write():
         for i in records:
             print i
     except Exception:
-        flash(
+        hriks(
             'New File created with name %s' % (
                 sys.argv[1]
             )
@@ -58,14 +59,19 @@ def write():
         fieldnames = [
             'ids', 'student_name', 'academics', 'sports', 'social'
         ]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(
+            csvfile, fieldnames=fieldnames
+        )
 
         writer.writeheader()
         try:
             for record in records:
                 writer.writerow(record)
         except Exception:
-            flash('New File created with name %s' % (sys.argv[1]))
+            hriks('New File created with name %s' % (
+                sys.argv[1]
+            )
+            )
 
 
 def read():
@@ -77,16 +83,22 @@ def read():
 
 
 def read_cache():
-    data = session['data']
+    data = s['data']
     return data
 
 
 def write_cache(student_name, academics, sports, social):
+    import pdb; pdb.set_trace()
     data = cache_records()
-    if len(data) > 20:
-        count = session['count']
-        print count
-        data = delete_cache(count)
+    if len(data) == 20:
+        if 'count' in s:
+            count = s['count']
+            print count
+            data = delete_cache(count)
+        else:
+            data = cache_records()
+            while len(data) == 20:
+                data.pop()
     new_dict = {}
     new_dict['ids'] = ids_get()
     new_dict['student_name'] = student_name
@@ -110,13 +122,12 @@ def update_cache(ids, student_name, academics, sports, social):
 
 def delete_cache(ids):
     data = cache_records()
-    if ids:
-        for delete in data:
-            if int(delete['ids']) == int(ids):
-                data.pop(data.index(delete))
-        for ids in data:
-            ids['ids'] = data.index(ids) + 1
-        return data
+    for delete in data:
+        if int(delete['ids']) == int(ids):
+            data.pop(data.index(delete))
+    for ids in data:
+        ids['ids'] = data.index(ids) + 1
+    return data
 
 
 def ids_get():
@@ -135,35 +146,35 @@ def cache_records():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('pages/placeholder.home.html')
+    return render('pages/placeholder.home.html')
 
 
 @app.route('/delete', methods=['GET', 'POST'])
 def delete():
     if request.method == 'POST':
-        session['ids'] = request.form['submit']
-        session['delete'] = request.form['delete']
-        ids = session['ids']
+        s['ids'] = request.form['submit']
+        s['delete'] = request.form['delete']
+        ids = s['ids']
         data = delete_cache(ids)
-        session['data'] = data
-        flash(
+        s['data'] = data
+        hriks(
             'Notification : Successfully deleted records with ID %s' % (ids)
         )
-        session['ids'] = None
-        session['student_name'] = None
+        s['ids'] = None
+        s['student_name'] = None
         return redirect(url_for('home'))
 
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
     form = Update_student_info(request.form)
-    session['ids'] = request.form['submit']
-    ids = session['ids']
-    session['student_name'] = request.form['name']
-    name = session['student_name']
+    s['ids'] = request.form['submit']
+    ids = s['ids']
+    s['student_name'] = request.form['name']
+    name = s['student_name']
     if request.method == 'POST':
         return redirect(url_for('update'))
-    return render_template(
+    return render(
         'forms/update.html', form=form, ids=ids, name=name
     )
 
@@ -171,42 +182,44 @@ def edit():
 @app.route('/update', methods=['GET', 'POST'])
 def update():
     form = Update_student_info(request.form)
-    ids = session['ids']
-    name = session['student_name']
+    ids = s['ids']
+    name = s['student_name']
     if request.method == 'POST':
         academics = form.academics.data
         sports = form.sports.data
         social = form.social.data
         if academics is None or int(academics) > 100:
-            flash(
+            hriks(
                 'Notification : %s is not a valid score.\
                  Please enter valid score for Academics' % (
                     academics))
             return redirect(url_for('update'))
         elif sports is None or int(sports) > 100:
-            flash(
+            hriks(
                 'Notification : %s is not a valid score.\
                  Please enter valid score for Sports' % (
                     sports))
             return redirect(url_for('update'))
         elif social is None or int(social) > 100:
-            flash(
+            hriks(
                 'Notification : %s is not a valid score.\
                  Please enter valid score for Social' % (
                     social))
             return redirect(url_for('update'))
         else:
             data = update_cache(
-                session['ids'], session['student_name'],
+                s['ids'], s['student_name'],
                 academics, sports, social
             )
-            session['data'] = data
-            flash(
+            s['data'] = data
+            hriks(
                 'Notification : Successfully updated record for %s \
                 with ID %s' % (name, ids)
             )
-            return redirect(url_for('home'))
-    return render_template(
+            return redirect(
+                url_for('home')
+            )
+    return render(
         'forms/update.html', form=form, ids=ids, name=name
     )
 
@@ -216,7 +229,7 @@ def addinfo():
     try:
         ids = ids_get()
     except Exception:
-        flash(
+        hriks(
             'Notification : File doesnot exits. Shutdown to create a \
             file with name %s' % (sys.argv[1])
         )
@@ -228,27 +241,27 @@ def addinfo():
         sports = form.sports.data
         social = form.social.data
         if student_name is None:
-            flash(
+            hriks(
                 'Notification : %s is not vaild. Please Enter valid \
                 name' % student_name
             )
             return redirect(url_for('addinfo'))
         elif academics is None or int(academics) > 100:
-            flash(
+            hriks(
                 'Notification : %s is not a valid score.\
                  Please enter valid score for Academics' % (
                     academics)
             )
             return redirect(url_for('addinfo'))
         elif sports is None or int(sports) > 100:
-            flash(
+            hriks(
                 'Notification : %s is not a valid score.\
                  Please enter valid score for Sports' % (
                     sports)
             )
             return redirect(url_for('addinfo'))
         elif social is None or int(social) > 100:
-            flash(
+            hriks(
                 'Notification : %s is not a valid score.\
                  Please enter valid score for Social' % (
                     social)
@@ -258,28 +271,28 @@ def addinfo():
             data = write_cache(
                 student_name, academics, sports, social
             )
-            session['data'] = data
-            flash(
+            s['data'] = data
+            hriks(
                 'Notification : %s successfully added to records \
                 with ID %s' % (
                     student_name, ids
                 )
             )
             return redirect(url_for('home'))
-    return render_template('forms/register.html', form=form, ids=ids)
+    return render('forms/register.html', form=form, ids=ids)
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     count = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0} # noqa
     inverse = [(value, key) for key, value in count.items()]
-    session['count'] = max(inverse)[0]
+    s['count'] = max(inverse)[0]
     if request.method == 'POST':
         search = request.form['search']
         try:
             records = cache_records()
         except Exception:
-            flash(
+            hriks(
                 'Notification : No such file present.\
                  Please provide a valid file or shutdown to create file'
             )
@@ -292,24 +305,24 @@ def search():
                 if i['ids'] == int(search):
                     count[int(search)] = count[int(search)] + 1
         except Exception:
-            flash('Notification : Invalid ID provided, Please provide ID')
+            hriks('Notification : Invalid ID provided, Please provide ID')
             return redirect(url_for('home'))
-        return render_template(
+        return render(
             'pages/placeholder.search.html', match=match, search=search
         )
-    return render_template('pages/placeholder.search.html', search=search)
+    return render('pages/placeholder.search.html', search=search)
 
 
 # Error handlers.
 
 @app.errorhandler(500)
 def internal_error(error):
-    return render_template('errors/500.html'), 500
+    return render('errors/500.html'), 500
 
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('errors/404.html'), 404
+    return render('errors/404.html'), 404
 
 
 if not app.debug:
