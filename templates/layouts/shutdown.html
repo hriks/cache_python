@@ -73,9 +73,16 @@
         {% for message in messages %}
           <div class="alert alert-warning fade in">
             <a class="close" data-dismiss="alert">&times;</a>
-            <b>Please wait.....Saving Records</b>
-            <b>Application Shutdown, Now you can close Browser</b>
+            {% if message %}
+            {{message}}</br>
+            <b>Please wait.....</b></br>
+            <b>Shutting Down</br>
+             Now you can close Browser</b>
           </div>
+          {% else %}
+          <b>Please wait.....Saving Records</b>
+            <b>Application shutdown, Now you can close browser</b>
+      {% endif %}      
         {% endfor %}
       {% endif %}
     {% endwith %}
