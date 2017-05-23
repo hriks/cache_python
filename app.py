@@ -13,6 +13,8 @@ app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 app.config.from_object('config')
 
 
+count_dict = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0} # noqa
+
 # Shutdown Server
 
 
@@ -88,17 +90,22 @@ def read_cache():
 
 
 def write_cache(student_name, academics, sports, social):
-    import pdb; pdb.set_trace()
     data = cache_records()
-    if len(data) == 20:
-        if 'count' in s:
-            count = s['count']
-            print count
-            data = delete_cache(count)
-        else:
-            data = cache_records()
-            while len(data) == 20:
+    if 'count' in s:
+        count = s['count']
+        key = lambda x: x[1]
+        count_ids = min(count.items(), key=key)[0]
+        print 'count_id =', count_ids
+        id = count_ids
+        s['delete_id'] = id
+        print id
+        data = delete_cache(id)
+    if len(data) >= 20:
+        for length in data:
+            if len(data) >= 20:
                 data.pop()
+            else:
+                continue
     new_dict = {}
     new_dict['ids'] = ids_get()
     new_dict['student_name'] = student_name
@@ -272,25 +279,41 @@ def addinfo():
                 student_name, academics, sports, social
             )
             s['data'] = data
-            hriks(
-                'Notification : %s successfully added to records \
-                with ID %s' % (
-                    student_name, ids
+            if 'delete_id' in s:
+                hriks(
+                    'Notification : %s successfully added to records \
+                    with ID %s and deleted ID %s due to minimum access' % (
+                        student_name, ids, s['delete_id']
+                    )
                 )
-            )
+            else:
+                hriks(
+                    'Notification : %s successfully added to records \
+                    with ID %s' % (
+                        student_name, ids
+                    )
+                )
+            s.pop('delete_id', None)
             return redirect(url_for('home'))
     return render('forms/register.html', form=form, ids=ids)
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    count = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0} # noqa
-    inverse = [(value, key) for key, value in count.items()]
-    s['count'] = max(inverse)[0]
+    if 'p' not in s:
+        s['count'] = count_dict
+        print s['count']
+        count = s['count']
+    else:
+        count = s['count']
+        print 'dict', count
     if request.method == 'POST':
+        s['p'] = 'Active'
         search = request.form['search']
+        print 'searched for ID', search
         try:
             records = cache_records()
+            print 'len = ', len(records)
         except Exception:
             hriks(
                 'Notification : No such file present.\
@@ -302,8 +325,10 @@ def search():
                 lambda record: int(record["ids"]) == int(search), records
             )
             for i in records:
-                if i['ids'] == int(search):
-                    count[int(search)] = count[int(search)] + 1
+                if int(i['ids']) == int(search):
+                    count[search] = count[search] + 1
+            print 'Added to', count
+            s['count'] = count
         except Exception:
             hriks('Notification : Invalid ID provided, Please provide ID')
             return redirect(url_for('home'))
