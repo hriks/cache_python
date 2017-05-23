@@ -122,6 +122,7 @@ input[type=text]:focus {
           {% endfor %}
         {% endif %}
       {% endwith %}
+      {% if swipe == 1 %}
       <div class="alert alert-block alert-error fade in" style="background-color: lightgreen">
         <a class="close" data-dismiss="alert">&times;</a>
         <p style="text-align: center; color: red">
@@ -137,6 +138,23 @@ input[type=text]:focus {
           </b>
         </form>
       </div>
+      {% else %}
+      <div class="alert alert-block alert-error fade in" style="background-color: lightgreen">
+        <a class="close" data-dismiss="alert">&times;</a>
+        <p style="text-align: center; color: red">
+            <b>No File Found!</b>
+        </p>
+        <form action="create" method= POST>
+          <b>
+            <a>
+              <button name="submit" class ="button" type="submit" style="width: 100%">
+                Create {{ filename }}
+              </button>
+            </a>
+          </b>
+        </form>
+      </div>
+      {% endif %}
       <div style="text-align: right;">
         <form action="search" method="post" class="form">
           <input type="text" name="search" placeholder="Enter ID....">

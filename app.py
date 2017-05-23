@@ -45,6 +45,27 @@ def shutdown():
     return render('layouts/shutdown.html')
 
 
+@app.route('/create', methods=['POST'])
+def create():
+    with open(sys.argv[1], 'w+') as csvfile:
+        fieldnames = [
+            'ids', 'student_name', 'academics', 'sports', 'social'
+        ]
+        writer = csv.DictWriter(
+            csvfile, fieldnames=fieldnames
+        )
+
+        writer.writeheader()
+    s['swipe'] = 1
+    print s['swipe']
+    hriks(
+        'Notification : New file created with name "%s" ' % (
+            sys.argv[1]
+        )
+    )
+    return redirect(url_for('home'))
+
+
 # Controllers.
 def write():
     try:
@@ -153,7 +174,19 @@ def cache_records():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return render('pages/placeholder.home.html')
+    try:
+        input_file = csv.DictReader(open(sys.argv[1]))
+    except Exception:
+        input_file = None
+    file = sys.argv[1]
+    print input_file
+    if input_file:
+        swipe = 1
+        s['swipe'] = swipe
+    else:
+        swipe = 0
+        s['swipe'] = swipe
+    return render('pages/placeholder.home.html', filename=file, swipe=swipe)
 
 
 @app.route('/delete', methods=['GET', 'POST'])
@@ -279,20 +312,12 @@ def addinfo():
                 student_name, academics, sports, social
             )
             s['data'] = data
-            if 'delete_id' in s:
-                hriks(
-                    'Notification : %s successfully added to records \
-                    with ID %s and deleted ID %s due to minimum access' % (
-                        student_name, ids, s['delete_id']
-                    )
+            hriks(
+                'Notification : %s successfully added to records \
+                with ID %s' % (
+                    student_name, ids
                 )
-            else:
-                hriks(
-                    'Notification : %s successfully added to records \
-                    with ID %s' % (
-                        student_name, ids
-                    )
-                )
+            )
             s.pop('delete_id', None)
             return redirect(url_for('home'))
     return render('forms/register.html', form=form, ids=ids)
@@ -300,6 +325,8 @@ def addinfo():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    if 'swipe' in s:
+        swipe = s['swipe']
     if 'p' not in s:
         s['count'] = count_dict
         print s['count']
@@ -333,7 +360,8 @@ def search():
             hriks('Notification : Invalid ID provided, Please provide ID')
             return redirect(url_for('home'))
         return render(
-            'pages/placeholder.search.html', match=match, search=search
+            'pages/placeholder.search.html', match=match, search=search,
+            swipe=swipe
         )
     return render('pages/placeholder.search.html', search=search)
 
