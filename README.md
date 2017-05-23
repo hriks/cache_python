@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 Run app by 
 ```
-python app.py filename(Currently supported only for CSV)
+python app.py filename(Currently supported only for CSV*)
 ```
 Example
 ```
@@ -55,3 +55,5 @@ python app.py test.csv
 Open app in Browser, App is running at localhost:5000
 
 ### 
+
+## * BETA Application may able to read all other formats like txt, doc but formatting may be different
