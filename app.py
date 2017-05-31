@@ -16,58 +16,22 @@ app.config.from_object('config')
 count_dict = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0} # noqa
 
 # Shutdown Server
-
-
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
-
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    write()
-    s.clear()
-    shutdown_server()
-    print len(cache_records())
-    try:
-        if len(cache_records()) >= 1:
-            hriks(
-                'Notification : Records Saved !'
-            )
-    except Exception:
-        hriks(
-            'Notification : New file created with name "%s" ' % (
-                sys.argv[1]
-            )
-        )
-    return render('layouts/shutdown.html')
-
-
-@app.route('/create', methods=['POST'])
-def create():
-    with open(sys.argv[1], 'w+') as csvfile:
-        fieldnames = [
-            'ids', 'student_name', 'academics', 'sports', 'social'
-        ]
-        writer = csv.DictWriter(
-            csvfile, fieldnames=fieldnames
-        )
-
-        writer.writeheader()
-    s['swipe'] = 1
-    print s['swipe']
-    hriks(
-        'Notification : New file created with name "%s" ' % (
-            sys.argv[1]
-        )
-    )
-    return redirect(url_for('home'))
-
-
+ 
 # Controllers.
+
+
+# This method write the data to the file
+# whenever this method is called
+# currently this method is called only when
+# app is to be shutdown
 def write():
+    # TO DO : Allow user to save records at any instance
     try:
         records = cache_records()
         for i in records:
@@ -97,6 +61,9 @@ def write():
             )
 
 
+# This method allow to read the data from a given file
+# This method applies only when called
+# currently reads file only when app is started
 def read():
     input_file = csv.DictReader(open(sys.argv[1]))
     data = []
@@ -105,11 +72,18 @@ def read():
     return data
 
 
+# This method is read cache
+# this method read the data when data is modified and
+# stored in cache
 def read_cache():
     data = s['data']
     return data
 
 
+
+# This method write the data to the cache
+# This method only write when called or when needed.
+# It feed data into dict and append as a new elemnt to list
 def write_cache(student_name, academics, sports, social):
     data = cache_records()
     if 'count' in s:
@@ -137,6 +111,8 @@ def write_cache(student_name, academics, sports, social):
     return data
 
 
+# This method update cache record.
+# only when records has to modified
 def update_cache(ids, student_name, academics, sports, social):
     data = cache_records()
     if ids and student_name:
@@ -148,6 +124,7 @@ def update_cache(ids, student_name, academics, sports, social):
         return data
 
 
+# This method delete the data in the cached data list
 def delete_cache(ids):
     data = cache_records()
     for delete in data:
@@ -158,6 +135,8 @@ def delete_cache(ids):
     return data
 
 
+# This method fetches the id that is being
+# modified or deleted or created
 def ids_get():
     try:
         return len(read_cache()) + 1
@@ -165,11 +144,62 @@ def ids_get():
         return len(read()) + 1
 
 
+# This method call read_cache and read method
+# Whichever is present return that data
 def cache_records():
     try:
         return read_cache()
     except Exception:
         return read()
+
+
+# Routes--------
+
+
+# Shutdown route, This takes to Shutdown page
+# Save the cached data to file and user can
+# close browser and shutdown it. 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    write()
+    s.clear()
+    shutdown_server()
+    print len(cache_records())
+    try:
+        if len(cache_records()) >= 1:
+            hriks(
+                'Notification : Records Saved !'
+            )
+    except Exception:
+        hriks(
+            'Notification : New file created with name "%s" ' % (
+                sys.argv[1]
+            )
+        )
+    return render('layouts/shutdown.html')
+
+
+# This allow user to create a new row,
+# Depending upon the entries provided by user
+@app.route('/create', methods=['POST'])
+def create():
+    with open(sys.argv[1], 'w+') as csvfile:
+        fieldnames = [
+            'ids', 'student_name', 'academics', 'sports', 'social'
+        ]
+        writer = csv.DictWriter(
+            csvfile, fieldnames=fieldnames
+        )
+
+        writer.writeheader()
+    s['swipe'] = 1
+    print s['swipe']
+    hriks(
+        'Notification : New file created with name "%s" ' % (
+            sys.argv[1]
+        )
+    )
+    return redirect(url_for('home'))
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -189,6 +219,8 @@ def home():
     return render('pages/placeholder.home.html', filename=file, swipe=swipe)
 
 
+# This method delete the cache record form the data
+# and call delete_cache methods
 @app.route('/delete', methods=['GET', 'POST'])
 def delete():
     if request.method == 'POST':
@@ -205,6 +237,8 @@ def delete():
         return redirect(url_for('home'))
 
 
+# This route render update page
+# i.e, update records page
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
     form = Update_student_info(request.form)
@@ -219,6 +253,8 @@ def edit():
     )
 
 
+# This method allows to update records in the data
+# This method calls update_cache
 @app.route('/update', methods=['GET', 'POST'])
 def update():
     form = Update_student_info(request.form)
@@ -264,6 +300,9 @@ def update():
     )
 
 
+# This method allows to add new records
+# This method call ids_get and write_cache
+# which allows to feed records into list(data)
 @app.route('/addinfo', methods=['GET', 'POST'])
 def addinfo():
     try:
@@ -323,6 +362,8 @@ def addinfo():
     return render('forms/register.html', form=form, ids=ids)
 
 
+# This method searches and give the searched
+# record from the cached data
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if 'swipe' in s:
