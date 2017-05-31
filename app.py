@@ -22,53 +22,7 @@ def shutdown_server():
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
-
-# Shutdown route, This takes to Shutdown page
-# Save the cached data to file and user can
-# close browser and shutdown it. 
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    write()
-    s.clear()
-    shutdown_server()
-    print len(cache_records())
-    try:
-        if len(cache_records()) >= 1:
-            hriks(
-                'Notification : Records Saved !'
-            )
-    except Exception:
-        hriks(
-            'Notification : New file created with name "%s" ' % (
-                sys.argv[1]
-            )
-        )
-    return render('layouts/shutdown.html')
-
-
-# This allow user to create a new row,
-# Depending upon the entries provided by user
-@app.route('/create', methods=['POST'])
-def create():
-    with open(sys.argv[1], 'w+') as csvfile:
-        fieldnames = [
-            'ids', 'student_name', 'academics', 'sports', 'social'
-        ]
-        writer = csv.DictWriter(
-            csvfile, fieldnames=fieldnames
-        )
-
-        writer.writeheader()
-    s['swipe'] = 1
-    print s['swipe']
-    hriks(
-        'Notification : New file created with name "%s" ' % (
-            sys.argv[1]
-        )
-    )
-    return redirect(url_for('home'))
-
-
+ 
 # Controllers.
 
 
@@ -199,7 +153,55 @@ def cache_records():
         return read()
 
 
-# Routes
+# Routes--------
+
+
+# Shutdown route, This takes to Shutdown page
+# Save the cached data to file and user can
+# close browser and shutdown it. 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    write()
+    s.clear()
+    shutdown_server()
+    print len(cache_records())
+    try:
+        if len(cache_records()) >= 1:
+            hriks(
+                'Notification : Records Saved !'
+            )
+    except Exception:
+        hriks(
+            'Notification : New file created with name "%s" ' % (
+                sys.argv[1]
+            )
+        )
+    return render('layouts/shutdown.html')
+
+
+# This allow user to create a new row,
+# Depending upon the entries provided by user
+@app.route('/create', methods=['POST'])
+def create():
+    with open(sys.argv[1], 'w+') as csvfile:
+        fieldnames = [
+            'ids', 'student_name', 'academics', 'sports', 'social'
+        ]
+        writer = csv.DictWriter(
+            csvfile, fieldnames=fieldnames
+        )
+
+        writer.writeheader()
+    s['swipe'] = 1
+    print s['swipe']
+    hriks(
+        'Notification : New file created with name "%s" ' % (
+            sys.argv[1]
+        )
+    )
+    return redirect(url_for('home'))
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     try:
